@@ -14,6 +14,7 @@ public class ClientSide {
     ClientSide() {
         try {
             System.out.println("connecting to server....");
+            //the ip address 192.168.0.1 was only connecting to local network, have to make it a universal server
             socket = new Socket("127.0.0.1", 1111);
             System.out.println("connected");
             output = new DataOutputStream(socket.getOutputStream());
