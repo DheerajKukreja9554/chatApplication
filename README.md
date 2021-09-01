@@ -4,7 +4,7 @@ This is a learner project of chat application in java using java.net package
 
 ## App Description 
 
-currently this app is a realtime group chat in JAVA CLI 
+Currently this app is a realtime group chat in JAVA CLI 
 
 Client enters with his name in the group and can chat with currently present members
 
