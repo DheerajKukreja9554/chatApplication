@@ -7,22 +7,26 @@ import java.util.Scanner;
 
 public class ClientSide {
 
+    String clientName;
     Socket socket;
     DataOutputStream output;
     DataInputStream input;
 
-    ClientSide() {
+    ClientSide(String name) {
         try {
-            System.out.println("connecting to server....");
+            clientName=name;
+            System.out.println("\nconnecting to server....");
             //the ip address 192.168.0.1 was only connecting to local network, have to make it a universal server
             socket = new Socket("127.0.0.1", 1111);
-            System.out.println("connected");
+            System.out.println("CONNECTED\n");
             output = new DataOutputStream(socket.getOutputStream());
             input = new DataInputStream(socket.getInputStream());
-            startService();
+            output.writeUTF(clientName);
+            // startService();
         } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println(e);
+            System.out.println("Lost connection to server");
+                    
+            System.exit(0);
         }
     }
 
@@ -38,21 +42,21 @@ public class ClientSide {
                         output.writeUTF(msg);
                         if(msg.equalsIgnoreCase("exit")){
                             System.out.println("exiting");
-                            // output.flush();
                             socket.close();
                             break;
                         }
                     }
+                    // sc.close();
                 } catch (Exception e) {
-                    // TODO: handle exception
-                    System.out.println(e);
+                    System.out.println("Lost connection to server");
+                    
+                    System.exit(0);
                 }
 
             }
 
         });
         speakThread.start();
-        System.out.println("started lspeaking......");
     }
 
     public void startlistening() {
@@ -64,8 +68,9 @@ public class ClientSide {
                     while (true) {
 
                         String msg = input.readUTF();
-                        System.out.println("Server: " + msg);
-                        if(msg.equalsIgnoreCase("exit")){
+                        if(!msg.startsWith(clientName)&&!msg.equals("\nnew connection["+clientName+"]\n"))
+                            System.out.println(msg);
+                        if(msg.equalsIgnoreCase("bye")){
                             System.out.println("exiting");
                             input.close();
                             socket.close();
@@ -74,14 +79,14 @@ public class ClientSide {
                     }
 
                 } catch (Exception e) {
-                    // TODO: handle exception
-                    System.out.println(e);
+                    System.out.println("Lost connection to server");
+                    
+                    System.exit(0);
                 }
             }
         });
 
         listenThread.start();
-        System.out.println("Started Listening......");
     }
 
     public void startService() {
@@ -91,117 +96,12 @@ public class ClientSide {
 
     public static void main(String[] args) {
 
-        ClientSide client = new ClientSide();
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter your name:");
+        ClientSide client = new ClientSide(sc.nextLine());
+        client.startService();
 
-        // try{
-        // Socket s=new Socket("localhost",6666);
-        // DataOutputStream dout=new DataOutputStream(s.getOutputStream());
-        // dout.writeUTF("Hello Server");
-        // dout.flush();
-        // dout.close();
-        // s.close();
-        // }catch(Exception e){System.out.println(e);}
-        // } }
+        
     }
 }
 
-// package client;
-
-// import java.io.BufferedReader;
-// import java.io.IOException;
-// import java.io.InputStreamReader;
-// import java.io.PrintWriter;
-// import java.net.Socket;
-// import java.net.UnknownHostException;
-// import java.util.Scanner;
-
-// public class ClientSide {
-// Socket socket;
-
-// BufferedReader input;
-// PrintWriter output;
-
-// public ClientSide() {
-// try {
-// System.out.println("Client is ready to connect");
-// System.out.println("Connecting......");
-
-// socket = new Socket("127.0.0.1", 1110);
-// System.out.println("Connected");
-// input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-// output = new PrintWriter(socket.getOutputStream());
-// startService();
-// } catch (UnknownHostException e) {
-// e.printStackTrace();
-// } catch (IOException e) {
-// e.printStackTrace();
-// }
-// }
-
-// public void startlistening() {
-
-// Thread listenThread = new Thread(new Runnable() {
-
-// @Override
-// public void run() {
-// try {
-
-// while (true) {
-
-// String content="input.readLine()";
-// System.out.println(input.readLine());
-// if (content.equalsIgnoreCase("exit")) {
-// System.out.println("exiting.....");
-// break;
-// }
-// }
-// } catch (Exception e) {
-// //TODO: handle exception
-// e.printStackTrace();
-// }
-// }
-
-// });
-// listenThread.start();
-// }
-
-// public void startSpeaking() {
-// Thread speakThread = new Thread(new Runnable() {
-
-// @Override
-// public void run() {
-// while (true) {
-
-// try {
-// Scanner sc=new Scanner(System.in);
-// String content="Client: ";//+sc.nextLine();
-// output.println(sc.nextLine());
-// if (content.equalsIgnoreCase("exit")) {
-// output.println("exit");
-// output.flush();
-// break;
-// }
-
-// } catch (Exception e) {
-// //TODO: handle exception
-// e.printStackTrace();
-// }
-// }
-// }
-
-// });
-
-// speakThread.start();
-// }
-
-// public void startService() {
-// startlistening();
-// startSpeaking();
-// }
-
-// public static void main(String[] args) {
-// ClientSide client = new ClientSide();
-// // client.startService();
-// }
-
-// }
